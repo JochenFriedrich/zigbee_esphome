@@ -51,6 +51,7 @@ CONF_ACCESS = "access"
 CONF_SCALE = "scale"
 CONF_ATTRIBUTE_ID = "attribute_id"
 CONF_ZB_DEBUG = "debug"
+CONF_ROUTER = "router"
 
 zigbee_ns = cg.esphome_ns.namespace("zigbee")
 ZigBeeComponent = zigbee_ns.class_("ZigBeeComponent", cg.Component)
@@ -241,6 +242,7 @@ CONFIG_SCHEMA = cv.All(
                 }
             ),
             cv.Optional(CONF_ZB_DEBUG, default=False): cv.boolean,
+            cv.Optional(CONF_ROUTER, default=False): cv.boolean,
         }
     ).extend(cv.COMPONENT_SCHEMA),
     cv.require_framework_version(esp_idf=cv.Version(5, 1, 2)),
@@ -281,7 +283,10 @@ async def to_code(config):
         ref="c5be1da5c349103a85928ed02ca924c0f657b314",
     )
     add_idf_sdkconfig_option("CONFIG_ZB_ENABLED", True)
-    add_idf_sdkconfig_option("CONFIG_ZB_ZED", True)
+    if config.get(CONF_ROUTER):
+        add_idf_sdkconfig_option("CONFIG_ZB_ZCZR", True)
+    else:
+        add_idf_sdkconfig_option("CONFIG_ZB_ZED", True)
     add_idf_sdkconfig_option("CONFIG_ZB_RADIO_NATIVE", True)
     if config.get(CONF_ZB_DEBUG):
         add_idf_sdkconfig_option("CONFIG_ZB_DEBUG_MODE", True)

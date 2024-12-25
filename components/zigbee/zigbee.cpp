@@ -11,8 +11,8 @@
 #include "esp_coexist.h"
 #endif
 
-#if !defined ZB_ED_ROLE
-#error Define ZB_ED_ROLE in idf.py menuconfig to compile light (End Device) source code.
+#if !(defined ZB_ED_ROLE || defined ZB_ROUTER_ROLE)
+#error Define ZB_ED_ROLE or ZIGBEE_ROUTER_ROLE in idf.py menuconfig.
 #endif
 
 namespace esphome {
@@ -383,8 +383,11 @@ void ZigBeeComponent::setup() {
       .keep_alive = ED_KEEP_ALIVE,
   };
   esp_zb_cfg_t zb_nwk_cfg = {
-      .esp_zb_role = this->device_role_,
-      .install_code_policy = INSTALLCODE_POLICY_ENABLE,
+      zb_nwk_cfg.esp_zb_role = this->device_role_,
+#ifdef ZB_ROUTER_ROLE
+      zb_nwk_cfg.nwk_cfg.zczr_cfg.max_children = MAX_CHILDREN,
+#endif
+      zb_nwk_cfg.install_code_policy = INSTALLCODE_POLICY_ENABLE,
   };
   zb_nwk_cfg.nwk_cfg.zed_cfg = zb_zed_cfg;
   esp_zb_init(&zb_nwk_cfg);
