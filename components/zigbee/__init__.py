@@ -52,6 +52,7 @@ CONF_SCALE = "scale"
 CONF_ATTRIBUTE_ID = "attribute_id"
 CONF_ZIGBEE_ID = "zigbee_id"
 CONF_ROUTER = "router"
+CONF_ZB_DEBUG = "debug"
 
 zigbee_ns = cg.esphome_ns.namespace("zigbee")
 ZigBeeComponent = zigbee_ns.class_("ZigBeeComponent", cg.Component)
@@ -242,6 +243,7 @@ CONFIG_SCHEMA = cv.All(
                 }
             ),
             cv.Optional(CONF_ROUTER, default=False): cv.boolean,
+            cv.Optional(CONF_ZB_DEBUG, default=False): cv.boolean,
         }
     ).extend(cv.COMPONENT_SCHEMA),
     cv.require_framework_version(esp_idf=cv.Version(5, 1, 2)),
@@ -287,6 +289,9 @@ async def to_code(config):
     else:
         add_idf_sdkconfig_option("CONFIG_ZB_ZED", True)
     add_idf_sdkconfig_option("CONFIG_ZB_RADIO_NATIVE", True)
+    if config.get(CONF_ZB_DEBUG):
+        add_idf_sdkconfig_option("CONFIG_ZB_DEBUG_MODE", True)
+
     if CONF_WIFI in CORE.config:
         add_idf_sdkconfig_option("CONFIG_ESP_SYSTEM_EVENT_TASK_STACK_SIZE", 4096)
         cg.add_define("CONFIG_WIFI_COEX")
